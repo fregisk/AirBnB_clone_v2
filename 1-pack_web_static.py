@@ -1,21 +1,26 @@
-a .tgz archive from the contents of web_static.
-import os.path
-from datetime import datetime
-from fabric.api import local
+#!/usr/bin/python3
+""" Transfers file from local to remote """
+from fabric.api import *
+import datetime
+
+
+env.use_ssh_config = True
+env.hosts = ['35.237.82.133', '35.196.231.32']
+env.user = 'ubuntu'
+env.key_filename = '~/.ssh/holberton'
+date = datetime.datetime.now().strftime("%Y%m%d%I%M%S")
+
+
+def transfer():
+    """ transfers a specific file """
+    put('./0-setup_web_static.sh', '/tmp/')
 
 
 def do_pack():
-    """Create a tar gzipped archive of the directory web_static."""
-    dt = datetime.utcnow()
-    file = "versions/web_static_{}{}{}{}{}{}.tgz".format(dt.year,
-                                                         dt.month,
-                                                         dt.day,
-                                                         dt.hour,
-                                                         dt.minute,
-                                                         dt.second)
-    if os.path.isdir("versions") is False:
-        if local("mkdir -p versions").failed is True:
-            return None
-    if local("tar -cvzf {} web_static".format(file)).failed is True:
-        return None
-    return file
+    """
+        Generates a .tgz archive from the contents of web_static folder
+        Return: the archive path if the archive has been correctly generated
+        Otherwise Return: None
+    """
+    local("mkdir -p ./versions")
+    local("tar czvf ./versions/web_static_{}.tgz ./web_static/*".format(date))
